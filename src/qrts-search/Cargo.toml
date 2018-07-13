@@ -1,0 +1,8 @@
+[package]
+name = "qrts-search"
+version = "0.1.0"
+authors = ["kevinlmadison <coolklm121@gmail.com>"]
+
+[dependencies]
+clap = "2"
+walkdir = "2"
