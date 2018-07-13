@@ -1,6 +1,8 @@
 extern crate clap;
 extern crate walkdir;
+
 use clap::{Arg, App, SubCommand};
+use walkdir::WalkDir;
 
 
 fn main() {
@@ -34,12 +36,21 @@ fn main() {
                               .long("list_version")
                               .help("List installation directories where the detected version\n
                                     number is similar to the one specified here."))
-                          .arg(Arg::with_name("set_pref")
-                               .short("P"))
+                          .arg(Arg::with_name("setpref")
+                               .short("P")
+                               .long("setpref")
+                               .help("Toggle preference state for the specified installation."))
                           .arg(Arg::with_name("get")
-                               .short("g"))
+                               .short("g")
+                               .long("get")
+                               .help("Get the first installation directory flagged as preferred,\n
+                                      or the first if none is flagged as preferred."))
                           .arg(Arg::with_name("get_version")
-                               .short("G"))
+                               .short("G")
+                               .long("get_version")
+                               .help("Get the first installation directory flagged as preferred,\n
+                                      or the first if none is flagged as preferred, which also \n
+                                      has a version similar to the one specified."))
                           .arg(Arg::with_name("v")
                                .short("v")
                                .multiple(true)
