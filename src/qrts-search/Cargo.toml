@@ -5,6 +5,7 @@ authors = ["kevinlmadison <coolklm121@gmail.com>"]
 
 [dependencies]
 walkdir = "2"
+appdirs = "0.2.0"
 
 [dependencies.clap]
 version = "2"
