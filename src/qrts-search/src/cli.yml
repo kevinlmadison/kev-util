@@ -1,0 +1,51 @@
+name: Quartus Search
+version: "0.1"
+author: Kevin L. Madison and Charles Daniels
+about: "This script can be used to locate installations of Altera Quartus\n
+(specifically the NIOS tooling packages installed therein). Once located,\n
+it will cache the located instances so that they can be queried by other\n
+scripts. Note that the cache is actually stored in user_data_dir\n
+(~/.local/share on Linux) to prevent it from being inadvertently deleted by\n
+cache cleaning.\n"
+args:
+    - purge:
+        short: p
+        long: purge
+        help: "Purge cached installation directories.\n"
+    - search:
+        short: s
+        long: search
+        help: "Force a fresh search for Quartus installation\n
+        directories. This implies --purge. Note that the search \n
+        operation can take a long time, as it traverses the entire\n
+        filesystem in its search.\n"
+    - list:
+        short: l
+        long: list
+        help: "List installation directories. If the cache is empty,\n
+        then --search is implied.\n"
+    - list-version:
+        short: L
+        long: list-version
+        help: "List installation directories where the detected version\n
+        number is similar to the one specified here.\n"
+    - set-preference:
+        short: P
+        long: set-pref
+        help: "Toggle preference state for the specified installation.\n"
+    - get:
+        short: g
+        long: get
+        help: "Get the first installation directory flagged as preferred,\n
+        or the first if none is flagged as preferred, which also \n
+        has a version similar to the one specified.\n"
+    - get-version:
+        short: G
+        long: get-version
+        help: "Get the first installation directory flagged as preferred,\n
+        or the first if none is flagged as preferred, which also \n
+        has a version similar to the one specified.\n"
+    - v:
+        short: v
+        multiple: true
+        help: "Sets the level of verbosity.\n"
