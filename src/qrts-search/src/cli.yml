@@ -33,6 +33,8 @@ args:
         short: P
         long: set-pref
         help: "Toggle preference state for the specified installation.\n"
+        multiple: true
+        takes_value: true
     - get:
         short: g
         long: get
@@ -45,7 +47,16 @@ args:
         help: "Get the first installation directory flagged as preferred,\n
         or the first if none is flagged as preferred, which also \n
         has a version similar to the one specified.\n"
-    - v:
+        takes_value: true
+    - verbose:
         short: v
-        multiple: true
-        help: "Sets the level of verbosity.\n"
+        long: verbose
+        help: "Turns on verbose output.\n"
+groups:
+    - actions:
+        args:
+            - list
+            - list-version
+            - set-preference
+            - get
+            - get-version
