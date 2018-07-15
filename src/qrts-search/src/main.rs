@@ -4,9 +4,9 @@ extern crate walkdir;
 extern crate appdirs;
 
 use clap::App;
+use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use std::sync::atomic::{AtomicBool, ATOMIC_BOOL_INIT};
 use walkdir::WalkDir;
 
 fn main() {
@@ -42,9 +42,51 @@ fn purge(v: &bool) {
     write_verbose("Purging cache... ", v);
     if Path::new(&get_cache_dir()).exists() {
         write_verbose("Begin deletion...", v);
-        fs::remove_dir_all(Path::new(&get_cache_dir()));
+        fs::remove_dir_all(Path::new(&get_cache_dir())).unwrap();
         write_verbose("Cache purge complete", v);
     } else {
         write_verbose("Cache directory does not exist.", v);
     }
+}
+
+fn search(v: &bool) {
+    write_verbose("Beginning search... ", v);
+    let mut candidates = Vec::new();
+    let mut count: u32 = 0;
+    for entry in WalkDir::new("/") {
+        let entry = entry.unwrap();
+        if entry.file_type().is_file() {
+            count += 1;
+            if count % 100000 == 0 {
+                write_verbose(&format!(
+                        "Processed {} file ({})", count, entry
+                        .path()
+                        .display()), v);
+            }
+            if entry.file_name().to_str() == Some("nios2_command_shell.sh") {
+                write_verbose(&format!(
+                        "Found candidate at: {}", entry
+                        .path()
+                        .display()), v);
+                candidates.push(entry);
+            }
+        }
+    }
+    write_verbose(&format!("Found {} candidates.", candidates.len()), v);
+    let mut installations = Vec::new();
+    for candidate in candidates {
+        write_verbose(&format!("Considering candidate {}", candidate.path().display()), v);
+        //match parse_version(candidate) {
+        match Some("10") {
+            Some(version) => { 
+                let mut hash = HashMap::new();
+                hash.insert("version", version);
+                hash.insert("path", candidate.file_name().to_str().unwrap());
+                installations.push(hash);
+            },
+            None => write_verbose("Missing or invalid version file.", v)
+        }
+    }
+    write_verbose("Saving results... ", v);
+    //write_cache_file(installations);
 }
