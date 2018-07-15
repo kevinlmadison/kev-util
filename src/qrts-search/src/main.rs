@@ -4,6 +4,7 @@ extern crate walkdir;
 extern crate appdirs;
 
 use clap::App;
+use std::fs;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, ATOMIC_BOOL_INIT};
 use walkdir::WalkDir;
@@ -35,4 +36,15 @@ fn get_cache_dir() -> String {
 fn get_cache_file() -> String {
     let cache_file = Path::new(&get_cache_dir()).join("cache.json");
     cache_file.into_os_string().into_string().unwrap()
+}
+
+fn purge(v: &bool) {
+    write_verbose("Purging cache... ", v);
+    if Path::new(&get_cache_dir()).exists() {
+        write_verbose("Begin deletion...", v);
+        fs::remove_dir_all(Path::new(&get_cache_dir()));
+        write_verbose("Cache purge complete", v);
+    } else {
+        write_verbose("Cache directory does not exist.", v);
+    }
 }
