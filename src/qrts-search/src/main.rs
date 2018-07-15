@@ -1,3 +1,4 @@
+#![feature(type_ascription)]
 #[macro_use]
 extern crate clap;
 extern crate walkdir;
@@ -46,5 +47,34 @@ fn purge(v: &bool) {
         write_verbose("Cache purge complete", v);
     } else {
         write_verbose("Cache directory does not exist.", v);
+    }
+}
+//write_verbose("parsing version data from nios2eds installation {}"
+//.format(edspath))
+fn parse_version(entry: &walkdir::DirEntry, v: &bool) -> Option<String> {
+    write_verbose("parsing version from nios2eds installation", v);
+
+    //check that the file exists 
+    let version_file = entry.path().join("version.txt");
+    if version_file.exists() {
+        let contents = fs::read_to_string(&version_file.to_str().unwrap()).unwrap();
+        match Some(contents) {
+            contents =>  {
+                let version = (&contents
+                    .unwrap()
+                    .split(",")
+                    .collect(): <Vec<String>>)
+                    .split(":")
+                    .collect()
+                    .strip();
+                    
+                Some(version)
+            },
+            None => None
+        }
+
+    } else {
+        write_verbose(&format!("version file does not exist {:#?}", &version_file.to_str()), v);
+        None
     }
 }
