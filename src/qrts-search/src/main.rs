@@ -1,4 +1,3 @@
-#![feature(type_ascription)]
 #[macro_use]
 extern crate clap;
 extern crate walkdir;
@@ -50,8 +49,6 @@ fn purge(v: &bool) {
     }
 }
 
-//write_verbose("parsing version data from nios2eds installation {}"
-//.format(edspath))
 fn parse_version(entry: &walkdir::DirEntry, v: &bool) -> Option<String> {
     write_verbose("parsing version from nios2eds installation", v);
 
@@ -60,20 +57,20 @@ fn parse_version(entry: &walkdir::DirEntry, v: &bool) -> Option<String> {
     if version_file.exists() {
         let contents = fs::read_to_string(&version_file.to_str().unwrap()).unwrap();
         match Some(contents) {
-            contents =>  {
-                let version = (&contents
+            contents => {
+                let first_split: &Vec<&str> = &contents
                     .unwrap()
                     .split(",")
-                    .collect(): <Vec<String>>)
+                    .collect();
+                let second_split: &Vec<&str> = &first_split[1]
                     .split(":")
-                    .collect()
-                    .strip();
+                    .collect();
+                let version = second_split[1].to_string().trim();
                     
-                Some(version)
+                Some(version.to_string())
             },
             None => None
         }
-
     } else {
         write_verbose(&format!("version file does not exist {:#?}", &version_file.to_str()), v);
         None
