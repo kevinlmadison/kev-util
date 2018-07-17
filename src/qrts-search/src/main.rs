@@ -55,11 +55,9 @@ fn parse_version(entry: &walkdir::DirEntry, v: &bool) -> Option<String> {
     //check that the file exists 
     let version_file = entry.path().join("version.txt");
     if version_file.exists() {
-        let contents = fs::read_to_string(&version_file.to_str().unwrap()).unwrap();
-        match Some(contents) {
-            contents => {
+        let contents = match fs::read_to_string(&version_file.to_str().unwrap()) {
+            Ok(contents) => {
                 let first_split: &Vec<&str> = &contents
-                    .unwrap()
                     .split(",")
                     .collect();
                 let second_split: &Vec<&str> = &first_split[1]
@@ -69,8 +67,8 @@ fn parse_version(entry: &walkdir::DirEntry, v: &bool) -> Option<String> {
                     
                 Some(version.to_string())
             },
-            None => None
-        }
+            Err(_) => None
+        };
     } else {
         write_verbose(&format!("version file does not exist {:#?}", &version_file.to_str()), v);
         None
@@ -104,7 +102,7 @@ fn search(v: &bool) {
     let mut installations = Vec::new();
     for candidate in candidates {
         write_verbose(&format!("Considering candidate {}", candidate.path().display()), v);
-        match parse_version(&candidate, &v) {
+        match parse_version(&candidate, v) {
             Some(version) => { 
                 let mut hash = HashMap::new();
                 hash.insert("version", version);
