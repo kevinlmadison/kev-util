@@ -104,12 +104,11 @@ fn search(v: &bool) {
     let mut installations = Vec::new();
     for candidate in candidates {
         write_verbose(&format!("Considering candidate {}", candidate.path().display()), v);
-        //match parse_version(candidate) {
-        match Some("10") {
+        match parse_version(&candidate, &v) {
             Some(version) => { 
                 let mut hash = HashMap::new();
                 hash.insert("version", version);
-                hash.insert("path", candidate.file_name().to_str().unwrap());
+                hash.insert("path", String::from(candidate.file_name().to_str().unwrap()));
                 installations.push(hash);
             },
             None => write_verbose("Missing or invalid version file.", v)
