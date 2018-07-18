@@ -55,7 +55,8 @@ fn parse_version(entry: &walkdir::DirEntry, v: &bool) -> Option<String> {
     //check that the file exists 
     let version_file = entry.path().join("version.txt");
     if version_file.exists() {
-        let contents = match fs::read_to_string(&version_file.to_str().unwrap()) {
+        match fs::read_to_string(&version_file.to_str().unwrap()) 
+        {
             Ok(contents) => {
                 let first_split: &Vec<&str> = &contents
                     .split(",")
@@ -63,14 +64,15 @@ fn parse_version(entry: &walkdir::DirEntry, v: &bool) -> Option<String> {
                 let second_split: &Vec<&str> = &first_split[1]
                     .split(":")
                     .collect();
-                let version = second_split[1].to_string().trim();
-                    
-                Some(version.to_string())
+                Some(second_split[1].to_string().trim().to_string())
             },
             Err(_) => None
-        };
+        }
     } else {
-        write_verbose(&format!("version file does not exist {:#?}", &version_file.to_str()), v);
+        write_verbose(&format!(
+                "version file does not exist {:#?}",
+                &version_file.to_str()),
+                v);
         None
     }
 
