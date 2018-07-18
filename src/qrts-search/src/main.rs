@@ -104,12 +104,18 @@ fn search(v: &bool) {
     write_verbose(&format!("Found {} candidates.", candidates.len()), v);
     let mut installations = Vec::new();
     for candidate in candidates {
-        write_verbose(&format!("Considering candidate {}", candidate.path().display()), v);
+        write_verbose(&format!(
+                "Considering candidate {}",
+                 candidate.path().display()),
+                 v);
         match parse_version(&candidate, v) {
             Some(version) => { 
                 let mut hash = HashMap::new();
                 hash.insert("version", version);
-                hash.insert("path", String::from(candidate.file_name().to_str().unwrap()));
+                hash.insert("path", String::from(candidate
+                                                 .file_name()
+                                                 .to_str()
+                                                 .unwrap()));
                 installations.push(hash);
             },
             None => write_verbose("Missing or invalid version file.", v)
