@@ -77,6 +77,7 @@ fn parse_version(entry: &walkdir::DirEntry, v: &bool) -> Option<String> {
     }
 
 }
+
 fn search(v: &bool) {
     write_verbose("Beginning search... ", v);
     let mut candidates = Vec::new();
@@ -115,6 +116,16 @@ fn search(v: &bool) {
         }
     }
     write_verbose("Saving results... ", v);
-    //write_cache_file(installations);
+    write_cache_file(&installations, v);
 
+}
+
+fn write_cache_file(contents: &Vec<HashMap<&str, String>>, v: &bool) {
+    if !Path::new(&get_cache_dir()).is_dir() {
+        write_verbose("Creating cache dir... ", v);
+        fs::DirBuilder::new()
+            .recursive(true)
+            .create(Path::new(&get_cache_dir()))
+            .unwrap()
+    }
 }
