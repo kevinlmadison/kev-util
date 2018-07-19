@@ -93,6 +93,7 @@ fn search(v: &bool) {
                         .display()), v);
             }
             if entry.file_name().to_str() == Some("nios2_command_shell.sh") {
+
                 write_verbose(&format!(
                         "Found candidate at: {}", entry
                         .path()
@@ -134,4 +135,13 @@ fn write_cache_file(contents: &Vec<HashMap<&str, String>>, v: &bool) {
             .create(Path::new(&get_cache_dir()))
             .unwrap()
     }
+}
+
+fn load_cache_file(v: &bool) {
+    write_verbose("Loading cache file", v);
+    if !Path::new(&get_cache_file()).is_file() {
+        write_verbose("Cache file does not exist, beginning search... ");
+        search(v);
+    }
+    // Open the cache file in json format, maybe try toml
 }
