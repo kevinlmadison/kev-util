@@ -1,11 +1,17 @@
+extern crate appdirs;
 #[macro_use]
 extern crate clap;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
 extern crate walkdir;
-extern crate appdirs;
 
 use clap::App;
+use serde_json::Error;
 use std::collections::HashMap;
 use std::fs;
+use std::io::prelude::*;
 use std::path::Path;
 use walkdir::WalkDir;
 
@@ -78,6 +84,12 @@ fn parse_version(entry: &walkdir::DirEntry, v: &bool) -> Option<String> {
 
 }
 
+#[derive(Serialize, Deserialize)]
+struct Install {
+    version: String,
+    path: String,
+}
+
 fn search(v: &bool) {
     write_verbose("Beginning search... ", v);
     let mut candidates = Vec::new();
@@ -110,14 +122,15 @@ fn search(v: &bool) {
                  candidate.path().display()),
                  v);
         match parse_version(&candidate, v) {
-            Some(version) => { 
-                let mut hash = HashMap::new();
-                hash.insert("version", version);
-                hash.insert("path", String::from(candidate
-                                                 .file_name()
-                                                 .to_str()
-                                                 .unwrap()));
-                installations.push(hash);
+            Some(vers) => { 
+                let install = Install {
+                    version: vers.to_owned(),
+                    path: String::from(candidate
+                                       .file_name()
+                                       .to_str()
+                                       .unwrap()),
+                };
+                installations.push(install);
             },
             None => write_verbose("Missing or invalid version file.", v)
         }
@@ -127,7 +140,7 @@ fn search(v: &bool) {
 
 }
 
-fn write_cache_file(contents: &Vec<HashMap<&str, String>>, v: &bool) {
+fn write_cache_file(contents: &Vec<Install>, v: &bool) {
     if !Path::new(&get_cache_dir()).is_dir() {
         write_verbose("Creating cache dir... ", v);
         fs::DirBuilder::new()
@@ -135,13 +148,27 @@ fn write_cache_file(contents: &Vec<HashMap<&str, String>>, v: &bool) {
             .create(Path::new(&get_cache_dir()))
             .unwrap()
     }
+    write_verbose("Writing data to cache file...", v);
+    if !Path::new(&get_cache_file()).exists() {
+        let mut file = fs::File::create(&get_cache_file()).unwrap();
+        write!(file, "{}", serde_json::to_string(&contents).unwrap());
+    } else {
+        let mut file = fs::File::open(&get_cache_file()).unwrap();
+        write!(file, "{}", serde_json::to_string(&contents).unwrap());
+    }
+    write_verbose("Write completed.", v);
 }
 
-fn load_cache_file(v: &bool) {
+
+fn load_cache_file(v: &bool) -> Vec<Install> {
     write_verbose("Loading cache file", v);
-    if !Path::new(&get_cache_file()).is_file() {
-        write_verbose("Cache file does not exist, beginning search... ");
+    if !Path::new(&get_cache_file()).exists() {
+        write_verbose("Cache file does not exist, beginning search... ", v);
         search(v);
     }
-    // Open the cache file in json format, maybe try toml
+    let mut file = fs::File::open(&get_cache_file()).unwrap();
+    let mut buf = String::new();
+    file.read_to_string(&mut buf).unwrap();
+    let cache_file: Vec<Install> = serde_json::from_str(&buf).unwrap();
+    cache_file
 }
