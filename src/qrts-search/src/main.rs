@@ -84,10 +84,11 @@ fn parse_version(entry: &walkdir::DirEntry, v: &bool) -> Option<String> {
 
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 struct Install {
     version: String,
     path: String,
+    preference: bool,
 }
 
 fn search(v: &bool) {
@@ -124,11 +125,12 @@ fn search(v: &bool) {
         match parse_version(&candidate, v) {
             Some(vers) => { 
                 let install = Install {
-                    version: vers.to_owned(),
+                    version: vers,
                     path: String::from(candidate
                                        .file_name()
                                        .to_str()
                                        .unwrap()),
+                    ..Default::default()
                 };
                 installations.push(install);
             },
@@ -171,4 +173,22 @@ fn load_cache_file(v: &bool) -> Vec<Install> {
     file.read_to_string(&mut buf).unwrap();
     let cache_file: Vec<Install> = serde_json::from_str(&buf).unwrap();
     cache_file
+}
+
+fn print_list(list: Vec<Install>) {
+    eprintln!("Number\tPref\tVersion\tPath");
+    let mut i: u32 = 0;
+    for item in list {
+        let mut preferred = String::new();
+        if item.preference {
+            preferred = String::from("*");
+        }
+        println!("{}\t{}\t{}\t{}", i, preferred, item.version, item.path);
+        i += 1;
+    }
+}
+
+fn search_version(target: &str) -> Vec<Install> {
+    Vec::new()
+        //finish this function!
 }
