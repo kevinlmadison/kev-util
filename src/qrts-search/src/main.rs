@@ -188,7 +188,8 @@ fn print_list(list: Vec<Install>) {
     }
 }
 
-fn search_version(target: &str) -> Vec<Install> {
-    Vec::new()
+fn search_version(target: &str, v: &bool) -> Vec<Install> {
         //finish this function!
+    write_verbose("Searching for install with version matching... {}", v);
+    Vec::new()
 }
