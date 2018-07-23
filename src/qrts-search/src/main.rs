@@ -214,9 +214,7 @@ fn setpref(n: usize, v: &bool) {
     write_cache_file(&installations, v);
 }
 
-fn get(q: String) {
-    let mut query;
-    if q == "" {
-        query = String::from(".*");
-    }
+fn get(query: &mut String) {
+    query = !format(".*{}.*", query);
+    let re = Regex::new(&query).unwrap();
 }
