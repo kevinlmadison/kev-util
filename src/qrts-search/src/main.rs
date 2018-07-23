@@ -9,8 +9,7 @@ extern crate serde_json;
 extern crate walkdir;
 
 use clap::App;
-use serde_json::Error;
-use std::collections::HashMap;
+use regex::Regex;
 use std::fs;
 use std::io::prelude::*;
 use std::path::Path;
@@ -190,7 +189,34 @@ fn print_list(list: Vec<Install>) {
 }
 
 fn search_version(target: &str, v: &bool) -> Vec<Install> {
-        //finish this function!
-    write_verbose("Searching for install with version matching... {}", v);
-    Vec::new()
+    let query = format!(".*{}.*",target);
+    let re = Regex::new(&query).unwrap();
+    write_verbose(&format!("Searching for install with version matching: {}", &query), v);
+    let mut results = Vec::new();
+    for row in load_cache_file(v) {
+        if re.is_match(&row.version) {
+            results.push(row);
+        }
+    }
+    write_verbose(&format!("Search found {} results.", results.len()), v);
+    results
+}
+
+fn setpref(n: usize, v: &bool) {
+    write_verbose(&format!("Toggling preference for installation {}", n), v);
+    let mut installations = load_cache_file(v);
+    if installations[n].preference {
+        write_verbose("Toggling from true to false.", v);
+        installations[n].preference = false;
+    } else {
+        write_verbose("Toggling from false to true.", v);
+    }
+    write_cache_file(&installations, v);
+}
+
+fn get(q: String) {
+    let mut query;
+    if q == "" {
+        query = String::from(".*");
+    }
 }
