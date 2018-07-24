@@ -10,6 +10,7 @@ extern crate walkdir;
 
 use clap::App;
 use regex::Regex;
+use std::fmt;
 use std::fs;
 use std::io::prelude::*;
 use std::path::Path;
@@ -89,6 +90,12 @@ struct Install {
     version: String,
     path: String,
     preference: bool,
+}
+
+impl fmt::Display for Install {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "v: {}, path: {}", self.version, self.path)
+    }
 }
 
 fn search(v: &bool) {
@@ -214,7 +221,24 @@ fn setpref(n: usize, v: &bool) {
     write_cache_file(&installations, v);
 }
 
-fn get(query: &mut String) {
-    query = !format(".*{}.*", query);
+fn get(q: String, v: &bool) {
+    let query = format!(".*{}.*", q);
     let re = Regex::new(&query).unwrap();
+    write_verbose(&format!("Getting install directory with version matching {}...",query), v);
+    let mut result: Option<Install> = None;
+    let mut best_non_preferred: Option<Install> = None;
+    for row in load_cache_file(v) {
+        if !re.is_match(&row.version) {
+            continue;
+        }
+        match best_non_preferred {
+            None => best_non_preferred = Some(row),
+            _ => (),
+        }
+        if row.preference {
+            write_verbose(&format!("Preferred install found: {:#}", &row), v);
+            result = Some(row);
+            break;
+        }
+    }
 }
