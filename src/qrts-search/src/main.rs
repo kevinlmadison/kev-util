@@ -20,10 +20,34 @@ fn main() {
     let yaml = load_yaml!("cli.yml");
     let matches = App::from_yaml(yaml).get_matches();
 
-    let vflag = matches.is_present("verbose");
-    write_verbose("Verbose output enabled.", &vflag);
-    write_verbose(&format!("Cache Directory: {}", get_cache_dir()), &vflag);
-    write_verbose(&format!("Cache File: {}", get_cache_file()), &vflag);
+    let v = matches.is_present("verbose");
+    write_verbose("Verbose output enabled.", &v);
+    write_verbose(&format!("Cache Directory: {}", get_cache_dir()), &v);
+    if matches.is_present("purge") {
+        purge(&v);
+    }
+    if matches.is_present("search") {
+        purge(&v);
+        search(&v);
+    }
+    if matches.is_present("list") {
+        print_list(load_cache_file(&v));
+    }
+    match matches.value_of("set-preference") {
+        Some(pref) => setpref(pref.parse::<usize>().unwrap(), &v),
+        None => (),
+    }
+    match matches.value_of("list-version") {
+        Some(version) => print_list(search_version(version, &v)),
+        None => (),
+    }
+    if matches.is_present("get") {
+        get(String::from(""), &v);
+    }
+    match matches.value_of("get-version") {
+        Some(version) => get(version.to_string(), &v),
+        None => (),
+    }
 }
 
 fn write_verbose(message: &str, v: &bool) {
@@ -224,21 +248,41 @@ fn setpref(n: usize, v: &bool) {
 fn get(q: String, v: &bool) {
     let query = format!(".*{}.*", q);
     let re = Regex::new(&query).unwrap();
-    write_verbose(&format!("Getting install directory with version matching {}...",query), v);
+    write_verbose(&format!("Getting install directory with version matching {}...",&query), v);
     let mut result: Option<Install> = None;
-    let mut best_non_preferred: Option<Install> = None;
+    let mut best: Vec<Install> = Vec::new();
+
     for row in load_cache_file(v) {
-        if !re.is_match(&row.version) {
-            continue;
-        }
-        match best_non_preferred {
-            None => best_non_preferred = Some(row),
-            _ => (),
-        }
-        if row.preference {
-            write_verbose(&format!("Preferred install found: {:#}", &row), v);
-            result = Some(row);
+
+        if !re.is_match(&row.version) { continue; }
+
+        best.push(row);
+
+        if best.last().unwrap().preference  == true {
+            write_verbose(&format!("Preferred install found: {:#}", best.last().unwrap()), v);
+            result = best.pop();
             break;
         }
+    }
+
+    match result {
+        None => {
+            write_verbose("No preferred install, failing over to non-preferred.", v);
+            result = best.pop();
+        },
+        _ => (),
+    }
+
+    match result {
+        None => {
+            eprintln!("FATAL: no installation directory found");
+            eprintln!("matching version query \'{}\'", &query);
+            std::process::exit(1);
+        },
+        Some(install) => {
+            write_verbose(&format!("Selected result: {:#}", &install), v);
+            println!("{:#}", &install.path);
+            std::process::exit(0);
+        },
     }
 }

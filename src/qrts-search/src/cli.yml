@@ -29,6 +29,7 @@ args:
         long: list-version
         help: "List installation directories where the detected version\n
         number is similar to the one specified here.\n"
+        takes_value: true
     - set-preference:
         short: P
         long: set-pref
