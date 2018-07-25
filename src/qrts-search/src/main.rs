@@ -13,6 +13,7 @@ use regex::Regex;
 use std::fmt;
 use std::fs;
 use std::io::prelude::*;
+use std::io::{self, Write};
 use std::path::Path;
 use walkdir::WalkDir;
 
@@ -52,7 +53,7 @@ fn main() {
 
 fn write_verbose(message: &str, v: &bool) {
     if *v {
-        eprintln!("{}", message);
+        io::stderr().write(&format!("{}", message).as_bytes()).unwrap();
     }
 }
 
