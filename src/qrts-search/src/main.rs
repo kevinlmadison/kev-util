@@ -1,3 +1,4 @@
+/// Stub for documentation comments
 extern crate appdirs;
 #[macro_use]
 extern crate clap;
