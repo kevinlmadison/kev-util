@@ -57,16 +57,6 @@ fn write_verbose(message: &str, v: &bool) {
         io::stderr().write(&format!("{}", message).as_bytes()).unwrap();
     }
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_write_verbose() {
-        let test_string = String::from("/home/kelevra/.local/share/quartus-search");
-        println!("{}", &test_string);
-        assert_eq!(test_string, get_cache_dir());
-    }
-}
 
 fn get_cache_dir() -> String {
     let cache_dir = Path::new(
@@ -296,5 +286,16 @@ fn get(q: String, v: &bool) {
             println!("{:#}", &install.path);
             std::process::exit(0);
         },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_write_verbose() {
+        let test_string = String::from("/home/kelevra/.local/share/quartus-search");
+        println!("{}", &test_string);
+        assert_eq!(test_string, get_cache_dir());
     }
 }
