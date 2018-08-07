@@ -295,7 +295,6 @@ mod tests {
     #[test]
     fn test_write_verbose() {
         let test_string = String::from("/home/kelevra/.local/share/quartus-search");
-        println!("{}", &test_string);
         assert_eq!(test_string, get_cache_dir());
     }
 }
